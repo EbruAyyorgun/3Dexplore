@@ -262,16 +262,20 @@ def update_figure1(X, Y, Z, size, on):
         fig.update_yaxes(range=[min_y1, max_y1])
         fig.update_yaxes(range=[min_z1, max_z1])
 
+        # create a new dataframe that contains the filtered points (the points that the exploration box overlaps)
         em_df = pd.DataFrame(plot1_axes, columns=['0', '1', '2'])
         em_filtered = em_df[(((em_df['0'] >= X) & (em_df['0'] <= X+size))
                             & ((em_df['1'] >= Y) & (em_df['1'] <= Y+size))
                             & ((em_df['2'] >= Z) & (em_df['2'] <= Z+size)))].index.to_list()
         df_filtered = em_df.filter(items=em_filtered, axis=0)
+
+        # If points have been selected, make those selected points 100% opacity, and the unselected points 50% opacity
         if not df_filtered.empty:
             fig.update_traces(x=df_filtered.iloc[:, 0], y=df_filtered.iloc[:, 1], z=df_filtered.iloc[:, 2], marker=dict(
                 opacity=1), selector=dict(name="selected"))
         else:
             fig.update_traces(marker=dict(opacity=0.5), selector=dict(name="selected"))
+    # If the user doesn't want to select, then hide the exploration box, and make all the points look unselected
     else:
         fig.update_traces(marker=dict(
             opacity=0.5), selector=dict(name="selected"))
@@ -279,7 +283,7 @@ def update_figure1(X, Y, Z, size, on):
 
     return fig
 
-
+# same as the above callback, but to update the second figure
 @app.callback(Output('plot2', 'figure'),
               [Input('xslider2', 'value'),
               Input('yslider2', 'value'),
@@ -331,6 +335,9 @@ def update_figure2(X, Y, Z, size, on):
     #                  & ((df[y_col] >= Y) & (df[y_col] <= Y+size+1))
     #                  & ((df[z_col] >= Z) & (df[z_col] <= Z+size+1)))]
     # make sure this applies to all box plot traces in the figure
+
+
+# Callback to update the box-and-whisker plot with what has been selected
 @app.callback(Output('box', 'figure'), [Input('xslider1', 'value'),
               Input('yslider1', 'value'),
               Input('zslider1', 'value'),
